@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+    <html lang="zh-tw">
+    <head>
+        <title>Rust 語言之旅 - Let's go on an adventure!</title>
+
+        <meta charset="UTF-8">
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="keywords" content="Rust, Programming, Learning">
+        <meta name="description" content="Welcome to the Tour of Rust. This is meant to be a step by step guide through the features of the Rust programming language">
+        <meta name="theme-color" content="#ff6801"/>
+
+        <link rel="stylesheet" href="tour.css">
+        <link rel="preload" href="https://fonts.gstatic.com/s/neuton/v12/UMBQrPtMoH62xUZKdK0vfQr4LLkw6A.woff2" as="font" />
+        <link rel="preload" href="https://fonts.gstatic.com/s/neuton/v12/UMBTrPtMoH62xUZCz4g6UCj1Bg.woff2" as="font" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Neuton:ital,wght@0,400;0,700;1,400&display=swap" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;700&display=swap" />
+
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="manifest" href="./site.webmanifest">
+
+        <script src="./tour.js" defer></script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-155199982-1"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-155199982-1', { 'anonymize_ip': true });
+        </script>
+    </head>
+    <body>
+        <div class="tour">
+            <div class="header">
+                <span class="title"><a href="00_zh-tw.html">Rust 語言之旅</a></span>
+                <span class="nav">
+                <span class="toc"><a href="TOC_zh-tw.html">目錄</a></span>
+            </div>
+            <div class="page">
+            <h1>什麼是 utf-8</h1>
+            <p>隨著在計算機上使用的語言增加，需要一個能比 ASCII 編碼（1 字節表示 1 個字符，總共可表示 256 個字符）表示更多字符的編碼來容納其它語言的字符。</p>
+<p><strong>utf-8</strong> 編碼這時被引入來解決這個問題，它用 1-4 個字節來表示 1 個字符，這使得可以表示的字符數大大增加。</p>
+<p>使用可變長度的字節來表示字符有一個優點，就是常見的 ASCII 編碼字符在 <strong>utf-8</strong> 編碼中無需使用更多的字節（也是 1 字節表示 1 個字符）。</p>
+<p>但是這樣做也有缺點，在 <strong>utf-8</strong> 文本中通過索引來匹配字符（例：<code>my_text[3]</code> 獲取 my_text 的第 4 個字符）將不能像以前的編碼標準那麼快（以前編碼標準花費 <strong>O(1)</strong> 常數時間）。 這是因為前面的字符具有可變的對應字節，從而無法直接確定第 4 個字符在字節序列中的起始字節。</p>
+<p>我們需要遍歷 <strong>utf-8</strong> 的字節序列才可以得到對應 Unicode 字符的起始位置（這將花費 <strong>O(n)</strong> 線性時間）。</p>
+<p>Ferris：“我只是為 <strong>utf-8</strong> 編碼有表示我水中好友的表情符號感到高興。“</p>
+<p>🐠🐙🐟🐬🐋</p>
+            <div class="bottomnav">
+                <span class="back"><a href="beta_59_zh-tw.html" rel="prev">❮ 上一頁</a></span>
+                <span class="next"><a href="beta_61_zh-tw.html" rel="next">下一頁 ❯</a></span>
+            </div>
+            </div>
+            <div class="code"><center><img src="ferris_lofi.png" alt="Mascot Ferris" width="300" height="236"></center></div>
+        </div>
+    </body>
+</html>
