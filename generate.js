@@ -173,7 +173,7 @@ function template(lessonsData, lang, title, code, content, index, isLast, words,
             </div>
             ${code ? `<div class="code">
             <iframe width="100%" src="${code}" scrolling="no" frameborder="no" allowtransparency="true" allowfullscreen="true" sandbox="allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-modals" title="Rust Playground" loading="lazy"></iframe>
-            </div>` : '<div class="code"><center><img src="/ferris_lofi.png" alt="Mascot Ferris" width="300" height="236"></center></div>'}
+            </div>` : '<div class="code"><center><img src="ferris_lofi.png" alt="Mascot Ferris" width="300" height="236"></center></div>'}
         </div>
     </body>
 </html>`;
