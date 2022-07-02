@@ -1,0 +1,184 @@
+- title: 第六章 - 文本
+  content_markdown: >
+    瞭解完了 Rust 內存管理的機制，是時候更為詳盡地瞭解文本相關的內容了。
+
+    Rust 非常關注文本國際化與字節層級的問題，這意味著 Rust 有許多實用的工具來解決這些問題。雖然你可能對其它語言中的這些問題並不熟悉。
+
+- title: 字符串常量（String Literals）
+  content_markdown: >
+    字符串常量（String Literals）採用 Unicode 編碼（注：下文提及的 **utf-8** 為 Unicode 的一部分）。
+
+
+    字符串常量的類型為 `&'static str`：
+
+
+    * `&` 意味著該變量為對內存中數據的引用，沒有使用 `&mut` 代表編譯器將不會允許對該變量的修改
+
+    * `'static` 意味著字符串數據將會一直保存到程序結束（它不會在程序運行期間被**釋放（drop）**）
+
+    * `str` 意味著該變量總是指向一串合法的 **utf-8** 字節序列。
+
+
+
+    內存細節：
+
+    * Rust 編譯器可能會將字符串儲存在程序內存的數據段中。
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=fn%20main()%20%7B%0A%20%20%20%20let%20a%3A%20%26%27static%20str%20%3D%20%22%E4%BD%A0%E5%A5%BD%20%F0%9F%A6%80%22%3B%0A%20%20%20%20println!(%22%7B%7D%20%7B%7D%22%2C%20a%2C%20a.len())%3B%0A%7D%0A
+- title: 什麼是 utf-8
+  content_markdown: >
+    隨著在計算機上使用的語言增加，需要一個能比 ASCII 編碼（1 字節表示 1 個字符，總共可表示 256 個字符）表示更多字符的編碼來容納其它語言的字符。
+
+
+    **utf-8** 編碼這時被引入來解決這個問題，它用 1-4 個字節來表示 1 個字符，這使得可以表示的字符數大大增加。
+
+
+    使用可變長度的字節來表示字符有一個優點，就是常見的 ASCII 編碼字符在 **utf-8** 編碼中無需使用更多的字節（也是 1 字節表示 1 個字符）。
+
+
+    但是這樣做也有缺點，在 **utf-8** 文本中通過索引來匹配字符（例：`my_text[3]` 獲取 my_text 的第 4 個字符）將不能像以前的編碼標準那麼快（以前編碼標準花費 **O(1)** 常數時間）。
+    這是因為前面的字符具有可變的對應字節，從而無法直接確定第 4 個字符在字節序列中的起始字節。
+
+
+    我們需要遍歷 **utf-8** 的字節序列才可以得到對應 Unicode 字符的起始位置（這將花費 **O(n)** 線性時間）。
+
+
+    Ferris：“我只是為 **utf-8** 編碼有表示我水中好友的表情符號感到高興。“
+
+
+    🐠🐙🐟🐬🐋
+- title: 轉義字符
+  content_markdown: >
+    有些字符難以使用可視字符表示，這時可通過**轉義字符**來表示這些字符。
+
+
+    Rust 支持類 C 語言中的常見轉義字符；
+
+
+    * `\n` - 換行符
+
+    * `\r` - 回車符（回到本行起始位置）
+
+    * `\t` - 水平製表符（即鍵盤 Tab 鍵）
+
+    * `\\` - 代表單個反斜槓 \
+
+    * `\0` - 空字符（null）
+
+    * `\'` - 代表單引號 '
+
+
+    完整的轉義字符表[在這](https://doc.rust-lang.org/reference/tokens.html)。
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=fn%20main()%20%7B%0A%20%20%20%20let%20a%3A%20%26'static%20str%20%3D%20%22Ferris%20%E8%AF%B4%EF%BC%9A%5Ct%5C%22%E4%BD%A0%E5%A5%BD%5C%22%22%3B%0A%20%20%20%20println!(%22%7B%7D%22%2Ca)%3B%0A%7D
+- title: 多行字符串常量
+  content_markdown: |
+    Rust 中字符串默認支持分行。
+
+
+    使用 `\` 可以使多行字符串不換行。
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=fn%20main()%20%7B%0A%20%20%20%20let%20haiku%3A%20%26'static%20str%20%3D%20%22%0A%20%20%20%20%20%20%20%20%E6%88%91%E5%86%99%E4%B8%8B%EF%BC%8C%E6%93%A6%E6%8E%89%EF%BC%8C%0A%20%20%20%20%20%20%20%20%E5%86%8D%E5%86%99%EF%BC%8C%E5%86%8D%E6%93%A6%EF%BC%8C%0A%20%20%20%20%20%20%20%20%E7%84%B6%E5%90%8E%E4%B8%80%E6%9C%B5%E7%BD%82%E7%B2%9F%E8%8A%B1%E5%BC%80%E4%BA%86%E3%80%82%0A%20%20%20%20%20%20%20%20-%20%E8%91%9B%E9%A5%B0%E5%8C%97%E6%96%8B%22%3B%0A%20%20%20%20println!(%22%7B%7D%22%2C%20haiku)%3B%0A%20%20%20%20%0A%20%20%20%20%0A%20%20%20%20println!(%22%E4%BD%A0%E5%A5%BD%20%5C%0A%20%20%20%20%E4%B8%96%E7%95%8C%22)%3B%20%2F%2F%20%E6%B3%A8%E6%84%8F11%E8%A1%8C%20%E4%B8%96%20%E5%AD%97%E5%89%8D%E9%9D%A2%E7%9A%84%E7%A9%BA%E6%A0%BC%E4%BC%9A%E8%A2%AB%E5%BF%BD%E7%95%A5%0A%7D
+- title: 原始字符串常量
+  content_markdown: >
+    原始字符串支持寫入原始的文本而無需為特殊字符轉義，因而不會導致可讀性下降（如雙引號與反斜槓無需寫為 `\"` 和 `\\`），只需以 `r#"` 開頭，以 `"#` 結尾。
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=fn%20main()%20%7B%0A%20%20%20%20let%20a%3A%20%26'static%20str%20%3D%20r%23%22%0A%20%20%20%20%20%20%20%20%3Cdiv%20class%3D%22advice%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%E5%8E%9F%E5%A7%8B%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%9C%A8%E4%B8%80%E4%BA%9B%E6%83%85%E6%99%AF%E4%B8%8B%E9%9D%9E%E5%B8%B8%E6%9C%89%E7%94%A8%E3%80%82%0A%20%20%20%20%20%20%20%20%3C%2Fdiv%3E%0A%20%20%20%20%20%20%20%20%22%23%3B%0A%20%20%20%20println!(%22%7B%7D%22%2C%20a)%3B%0A%7D
+- title: 文件中的字符串常量
+  content_markdown: >
+    如果你需要使用大量文本，可以嘗試用宏 `include_str!` 來從本地文件中導入文本到程序中：
+
+
+    ```rust
+
+    let hello_html = include_str!("hello.html");
+
+    ```
+- title: 字符串片段（String Slice）
+  content_markdown: >
+    字符串片段是對內存中字節序列的引用，而且這段字節序列必須是合法的 utf-8 字節序列。
+
+
+    `str` 片段的字符串片段（子片段），也必須是合法的 utf-8 字節序列。
+
+
+    `&str` 的常用方法：
+
+    * `len` 獲取字符串常量的字節長度（不是字符長度）。
+
+    *  `starts_with`/`ends_with` 用於基礎測試。
+
+    * `is_empty` 長度為 0 時返回 true。
+
+    * `find` 返回 `Option<usize>`，其中的 `usize` 為匹配到的第一個對應文本的索引值。
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=fn%20main()%20%7B%0A%20%20%20%20let%20a%20%3D%20%22%E4%BD%A0%E5%A5%BD%20%F0%9F%A6%80%22%3B%0A%20%20%20%20println!(%22%7B%7D%22%2C%20a.len())%3B%0A%20%20%20%20let%20first_word%20%3D%20%26a%5B0..6%5D%3B%0A%20%20%20%20let%20second_word%20%3D%20%26a%5B7..11%5D%3B%0A%20%20%20%20%2F%2F%20let%20half_crab%20%3D%20%26a%5B7..9%5D%3B%20%E6%8A%A5%E9%94%99%0A%20%20%20%20%2F%2F%20Rust%20%E4%B8%8D%E6%8E%A5%E5%8F%97%E6%97%A0%E6%95%88%20unicode%20%E5%AD%97%E7%AC%A6%E6%9E%84%E6%88%90%E7%9A%84%E7%89%87%E6%AE%B5%0A%20%20%20%20println!(%22%7B%7D%20%7B%7D%22%2C%20first_word%2C%20second_word)%3B%0A%7D
+- title: Char
+  content_markdown: >
+    為了解決使用 Unicode 帶來的麻煩，Rust 提供了將 utf-8 字節序列轉化為類型 `char` 的 vector 的方法。
+
+
+    每個 `char` 長度都為 4 字節（可提高字符查找的效率）。
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=fn%20main()%20%7B%0A%20%20%20%20%2F%2F%20%E6%94%B6%E9%9B%86%E5%AD%97%E7%AC%A6%E5%B9%B6%E8%BD%AC%E6%8D%A2%E4%B8%BA%E7%B1%BB%E5%9E%8B%E4%B8%BA%20char%20%E7%9A%84%20vector%0A%20%20%20%20let%20chars%20%3D%20%22%E4%BD%A0%E5%A5%BD%20%F0%9F%A6%80%22.chars().collect%3A%3A%3CVec%3Cchar%3E%3E()%3B%0A%20%20%20%20println!(%22%7B%7D%22%2C%20chars.len())%3B%20%2F%2F%20%E7%BB%93%E6%9E%9C%E5%BA%94%E4%B8%BA%204%0A%20%20%20%20%2F%2F%20%E7%94%B1%E4%BA%8E%20char%20%E4%B8%BA%204%20%E5%AD%97%E8%8A%82%E9%95%BF%EF%BC%8C%E6%88%91%E4%BB%AC%E5%8F%AF%E4%BB%A5%E5%B0%86%E5%85%B6%E8%BD%AC%E5%8C%96%E4%B8%BA%20u32%0A%20%20%20%20println!(%22%7B%7D%22%2C%20chars%5B3%5D%20as%20u32)%3B%0A%7D%0A
+- title: 字符串（String）
+  content_markdown: >
+    **字符串`String`** 是一個結構體，其持有以堆（heap）的形式在內存中存儲的 utf-8 字節序列。
+
+
+    由於它以堆的形式來存儲，字符串可以延長、修改等等。這些都是字符串常量（string literals）無法執行的操作。
+
+
+    常用方法：
+
+    * `push_str` 用於在字符串的結尾添加字符串常量（&str）。
+
+    * `replace` 用於將一段字符串替換為其它的。
+
+    * `to_lowercase`/`to_uppercase` 用於大小寫轉換。
+
+    * `trim` 用於去除字符串前後的空格。
+
+
+    如果字符串`String` 被釋放（drop）了，其對應的堆內存片段也將被釋放。
+
+
+    字符串`String` 可以使用 `+` 運算符來在其結尾處連接一個 `&str` 並將其自身返回。但這個方法可能並不像你想象中的那麼人性化。
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=fn%20main()%20%7B%0A%20%20%20%20let%20mut%20helloworld%20%3D%20String%3A%3Afrom(%22%E4%BD%A0%E5%A5%BD%22)%3B%0A%20%20%20%20helloworld.push_str(%22%20%E4%B8%96%E7%95%8C%22)%3B%0A%20%20%20%20helloworld%20%3D%20helloworld%20%2B%20%22!%22%3B%0A%20%20%20%20println!(%22%7B%7D%22%2C%20helloworld)%3B%0A%7D%0A
+- title: 將文本作為函數的參數
+  content_markdown: >
+    字符串常量（String literals）和字符串（String）一般以字符串片段（string slice）的形式傳遞給函數。這給許多場景提供了充足的靈活性，因為所有權並未被傳遞。
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=fn%20say_it_loud(msg%3A%26str)%7B%0A%20%20%20%20println!(%22%7B%7D%EF%BC%81%EF%BC%81%EF%BC%81%22%2Cmsg.to_string().to_uppercase())%3B%0A%7D%0A%0Afn%20main()%20%7B%0A%20%20%20%20%2F%2F%20say_it_loud%20can%20borrow%20%26'static%20str%20as%20a%20%26str%0A%20%20%20%20say_it_loud(%22%E4%BD%A0%E5%A5%BD%22)%3B%0A%20%20%20%20%2F%2F%20say_it_loud%20can%20also%20borrow%20String%20as%20a%20%26str%0A%20%20%20%20say_it_loud(%26String%3A%3Afrom(%22%E5%86%8D%E8%A7%81%22))%3B%0A%7D%0A
+- title: 字符串構建
+  content_markdown: |
+    `concat` 和 `join` 可以以簡潔而有效的方式構建字符串。
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=fn%20main()%20%7B%0A%20%20%20%20let%20helloworld%20%3D%20%5B%22%E4%BD%A0%E5%A5%BD%22%2C%20%22%20%22%2C%20%22%E4%B8%96%E7%95%8C%22%2C%20%22%EF%BC%81%22%5D.concat()%3B%0A%20%20%20%20let%20abc%20%3D%20%5B%22a%22%2C%20%22b%22%2C%20%22c%22%5D.join(%22%2C%22)%3B%0A%20%20%20%20println!(%22%7B%7D%22%2C%20helloworld)%3B%0A%20%20%20%20println!(%22%7B%7D%22%2Cabc)%3B%0A%7D%0A
+- title: 字符串格式化
+  content_markdown: >
+    宏 `format!` 可用於創建一個使用佔位符的參數化字符串。（例：`{}`）
+
+
+    `format!` 和 `println!` 生成的參數化字符串相同，只是 `format!` 將其返回而 `println!` 將其打印出來。
+
+
+    這個函數涉及的內容太過廣泛，因而不可能在 *Rust 語言之旅* 中詳細介紹， 
+    如需瞭解完整的內容可看[這裡](https://doc.rust-lang.org/std/fmt/)。
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=fn%20main()%20%7B%0A%20%20%20%20let%20a%20%3D%2042%3B%0A%20%20%20%20let%20f%20%3D%20format!(%22%E7%94%9F%E6%B4%BB%E8%AF%80%E7%AA%8D%3A%20%7B%7D%22%2Ca)%3B%0A%20%20%20%20println!(%22%7B%7D%22%2Cf)%3B%0A%7D%0A
+- title: 字符串轉換
+  content_markdown: |
+    許多類型都可以通過 `to_string` 轉換為字符串。
+
+
+    而泛型函數 `parse` 則可將字符串或是字符串常量轉換為其它類型，該函數會返回 `Result` 因為轉換有可能失敗。
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=fn%20main()%20-%3E%20Result%3C()%2C%20std%3A%3Anum%3A%3AParseIntError%3E%20%7B%0A%20%20%20%20let%20a%20%3D%2042%3B%0A%20%20%20%20let%20a_string%20%3D%20a.to_string()%3B%0A%20%20%20%20let%20b%20%3D%20a_string.parse%3A%3A%3Ci32%3E()%3F%3B%0A%20%20%20%20println!(%22%7B%7D%20%7B%7D%22%2C%20a%2C%20b)%3B%0A%20%20%20%20Ok(())%0A%7D%0A
+- title: 第六章 - 總結
+  content_markdown: >
+    現在你已經懂得 Rust 中文本的基礎了！正如你所見，Unicode 編碼的應用使文本相關操作有些棘手，但標準庫中豐富的功能彌補了這一缺陷。
+
+
+    到目前為止，我們主要是從程序化範式的角度來看待 Rust（即只是函數和數據），但現在是時候讓我們來了解一些 Rust 的面向對象範式的特性和能力了。

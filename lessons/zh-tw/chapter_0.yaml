@@ -1,0 +1,51 @@
+- title: >-
+    你好，<img src="/favicon-32x32.png" style="display:inline;
+    vertical-align:bottom">
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=fn%20main()%20%7B%0A%20%20%20%20println!(%22%E4%BD%A0%E5%A5%BD%EF%BC%8C%F0%9F%A6%80%22)%3B%0A%7D%0A
+  content_markdown: >
+    歡迎來到 *Rust 語言之旅*。本教程旨在循序漸進地介紹 Rust 編程語言的特性。大家通常認為 Rust 是一門學習曲線陡峭的語言。我希望在此說明，在我們開始學習複雜的部分之前，還有很多東西需要探索。
+
+
+    你可以通過以下這些語言來閱讀本教程：
+
+
+    * [Deutsch](00_de.html)
+
+    * [English](index.html)
+
+    * [Español](00_es.html)
+
+    * [Français](00_fr.html)
+
+    * [Interlingue](00_ie.html)
+
+    * [Magyar](00_hu.html)
+
+    * [Polski](00_pl.html)
+
+    * [Português Brasileiro](00_pt-br.html)
+
+    * [Русский](00_ru.html)
+
+    * [簡體中文](00_zh-cn.html)
+
+    * [繁體中文](00_zh-tw.html)
+
+    * [日本語](00_ja.html)
+
+    * [한국어](00_ko.html)
+
+    * [Türkçe](00_tr.html)
+
+    * [Українська](00_ua.html)
+
+    * [ภาษาไทย](00_th.html)
+
+    如果你對內容有任何建議，或者想參與翻譯做出貢獻，請查看 Rust 語言之旅的 [GitHub 代碼庫](https://github.com/richardanaya/tour_of_rust)。
+
+
+    你可以使用 <span class="emoji">⬅️</span> 和 <span class="emoji">➡️</span> 瀏覽整個教程。
+
+
+    在這個經典的例子中，我們展示了 Rust 對 Unicode 字符串的支持。

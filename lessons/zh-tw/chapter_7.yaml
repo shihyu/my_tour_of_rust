@@ -1,0 +1,266 @@
+- title: 第七章 - 面向對象編程
+  content_markdown: >
+    用函數表達思想是一種成熟的行為和數據表示方式（C 語言已經這麼做了幾十年了！）。
+    從歷史上看，計算機科學領域已經找到了其他的數據表達聚合和抽象的方式。
+    你可能熟知面向對象編程（OOP）就是這樣一種方式。在本章中，我們將探索函數之外的 Rust 編程語言。
+- title: 什麼是 OOP？
+  content_markdown: >
+    面向對象編程大致是指具有如下一些標誌性特徵的編程語言：
+
+    * 封裝——將數據和函數關聯到單一類型的概念單元中，稱為*對象*。
+
+    * 抽象——將數據和函數成員隱藏起來，以隱藏對象的實現細節。
+
+    * 多態——從不同的功能角度與對象進行交互的能力。
+
+    * 繼承——從其他對象繼承數據和行為的能力。
+- title: Rust 不是 OOP
+  content_markdown: >
+    Rust 缺乏任何有意義的數據和行為的繼承。
+
+
+    * 結構體不能從父結構繼承字段。
+
+    * 結構體不能從父結構繼承函數。
+
+
+    儘管如此，Rust 實現了許多編程語言的特性，所以你可能不會在意這個缺失。
+- title: 使用方法進行封裝
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=struct%20SeaCreature%20%7B%0A%20%20%20%20noise%3A%20String%2C%0A%7D%0A%0Aimpl%20SeaCreature%20%7B%0A%20%20%20%20fn%20get_sound(%26self)%20-%3E%20%26str%20%7B%0A%20%20%20%20%20%20%20%20%26self.noise%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20main()%20%7B%0A%20%20%20%20let%20creature%20%3D%20SeaCreature%20%7B%0A%20%20%20%20%20%20%20%20noise%3A%20String%3A%3Afrom(%22blub%22)%2C%0A%20%20%20%20%7D%3B%0A%20%20%20%20println!(%22%7B%7D%22%2C%20creature.get_sound())%3B%0A%7D%0A
+  content_markdown: >
+    Rust 支持*對象*的概念。“對象”是一個與一些函數（也稱為*方法*）相關聯的結構體。
+
+
+    任何方法的第一個參數必須是與方法調用相關聯的實例的引用。(例如 `instanceOfObj.foo()`)。Rust 使用：
+
+    * `&self` —— 對實例的不可變引用。
+
+    * `&mut self` —— 對實例的可變引用。
+
+
+    方法是在一個有 `impl` 關鍵字的實現塊中定義的：
+
+    ```rust
+
+    impl MyStruct { 
+        ...
+        fn foo(&self) {
+            ...
+        }
+    }
+
+    ```
+- title: 抽象與選擇性暴露
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=struct%20SeaCreature%20%7B%0A%20%20%20%20pub%20name%3A%20String%2C%0A%20%20%20%20noise%3A%20String%2C%0A%7D%0A%0Aimpl%20SeaCreature%20%7B%0A%20%20%20%20pub%20fn%20get_sound(%26self)%20-%3E%20%26str%20%7B%0A%20%20%20%20%20%20%20%20%26self.noise%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20main()%20%7B%0A%20%20%20%20let%20creature%20%3D%20SeaCreature%20%7B%0A%20%20%20%20%20%20%20%20name%3A%20String%3A%3Afrom(%22Ferris%22)%2C%0A%20%20%20%20%20%20%20%20noise%3A%20String%3A%3Afrom(%22blub%22)%2C%0A%20%20%20%20%7D%3B%0A%20%20%20%20println!(%22%7B%7D%22%2C%20creature.get_sound())%3B%0A%7D%0A
+  content_markdown: >
+    Rust 可以隱藏對象的內部實現細節。
+
+
+    默認情況下，字段和方法只有它們所屬的模塊才可訪問。
+
+
+    `pub` 關鍵字可以將字段和方法暴露給模塊外的訪問者。
+- title: 使用 Trait 實現多態
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=struct%20SeaCreature%20%7B%0A%20%20%20%20pub%20name%3A%20String%2C%0A%20%20%20%20noise%3A%20String%2C%0A%7D%0A%0Aimpl%20SeaCreature%20%7B%0A%20%20%20%20pub%20fn%20get_sound(%26self)%20-%3E%20%26str%20%7B%0A%20%20%20%20%20%20%20%20%26self.noise%0A%20%20%20%20%7D%0A%7D%0A%0Atrait%20NoiseMaker%20%7B%0A%20%20%20%20fn%20make_noise(%26self)%3B%0A%7D%0A%0Aimpl%20NoiseMaker%20for%20SeaCreature%20%7B%0A%20%20%20%20fn%20make_noise(%26self)%20%7B%0A%20%20%20%20%20%20%20%20println!(%22%7B%7D%22%2C%20%26self.get_sound())%3B%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20main()%20%7B%0A%20%20%20%20let%20creature%20%3D%20SeaCreature%20%7B%0A%20%20%20%20%20%20%20%20name%3A%20String%3A%3Afrom(%22Ferris%22)%2C%0A%20%20%20%20%20%20%20%20noise%3A%20String%3A%3Afrom(%22blub%22)%2C%0A%20%20%20%20%7D%3B%0A%20%20%20%20creature.make_noise()%3B%0A%7D%0A
+  content_markdown: >
+    Rust 支持多態的特性。Trait 允許我們將一組方法與結構類型關聯起來。
+
+
+    我們首先在 Trait 裡面定義函數簽名：
+
+
+    ```
+
+    trait MyTrait {
+        fn foo(&self);
+        ...
+    }
+
+    ```
+
+
+    當一個結構體實現一個 trait 時，它便建立了一個契約，允許我們通過 trait 類型與結構體進行間接交互（例如 `&dyn MyTrait`），而不必知道其真實的類型。
+
+
+    結構體實現 Trait 方法是在實現塊中定義要實現的方法：
+
+
+    ```rust
+
+    impl MyTrait for MyStruct { 
+        fn foo(&self) {
+            ...
+        }
+        ... 
+    }
+
+    ```
+- title: Trait 自帶方法
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=struct%20SeaCreature%20%7B%0A%20%20%20%20pub%20name%3A%20String%2C%0A%20%20%20%20noise%3A%20String%2C%0A%7D%0A%0Aimpl%20SeaCreature%20%7B%0A%20%20%20%20pub%20fn%20get_sound(%26self)%20-%3E%20%26str%20%7B%0A%20%20%20%20%20%20%20%20%26self.noise%0A%20%20%20%20%7D%0A%7D%0A%0Atrait%20NoiseMaker%20%7B%0A%20%20%20%20fn%20make_noise(%26self)%3B%0A%20%20%20%20%0A%20%20%20%20fn%20make_alot_of_noise(%26self)%7B%0A%20%20%20%20%20%20%20%20self.make_noise()%3B%0A%20%20%20%20%20%20%20%20self.make_noise()%3B%0A%20%20%20%20%20%20%20%20self.make_noise()%3B%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20NoiseMaker%20for%20SeaCreature%20%7B%0A%20%20%20%20fn%20make_noise(%26self)%20%7B%0A%20%20%20%20%20%20%20%20println!(%22%7B%7D%22%2C%20%26self.get_sound())%3B%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20main()%20%7B%0A%20%20%20%20let%20creature%20%3D%20SeaCreature%20%7B%0A%20%20%20%20%20%20%20%20name%3A%20String%3A%3Afrom(%22Ferris%22)%2C%0A%20%20%20%20%20%20%20%20noise%3A%20String%3A%3Afrom(%22blub%22)%2C%0A%20%20%20%20%7D%3B%0A%20%20%20%20creature.make_alot_of_noise()%3B%0A%7D%0A
+  content_markdown: >
+    Trait 可以有已實現的方法。
+
+
+    這些函數並不能直接訪問結構體的內部字段，但它可以在許多 trait 實現者之間共享行為。
+- title: Trait 繼承
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=struct%20SeaCreature%20%7B%0A%20%20%20%20pub%20name%3A%20String%2C%0A%20%20%20%20noise%3A%20String%2C%0A%7D%0A%0Aimpl%20SeaCreature%20%7B%0A%20%20%20%20pub%20fn%20get_sound(%26self)%20-%3E%20%26str%20%7B%0A%20%20%20%20%20%20%20%20%26self.noise%0A%20%20%20%20%7D%0A%7D%0A%0Atrait%20NoiseMaker%20%7B%0A%20%20%20%20fn%20make_noise(%26self)%3B%0A%7D%0A%0Atrait%20LoudNoiseMaker%3A%20NoiseMaker%20%7B%0A%20%20%20%20fn%20make_alot_of_noise(%26self)%20%7B%0A%20%20%20%20%20%20%20%20self.make_noise()%3B%0A%20%20%20%20%20%20%20%20self.make_noise()%3B%0A%20%20%20%20%20%20%20%20self.make_noise()%3B%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20NoiseMaker%20for%20SeaCreature%20%7B%0A%20%20%20%20fn%20make_noise(%26self)%20%7B%0A%20%20%20%20%20%20%20%20println!(%22%7B%7D%22%2C%20%26self.get_sound())%3B%0A%20%20%20%20%7D%0A%7D%0A%0Aimpl%20LoudNoiseMaker%20for%20SeaCreature%20%7B%7D%0A%0Afn%20main()%20%7B%0A%20%20%20%20let%20creature%20%3D%20SeaCreature%20%7B%0A%20%20%20%20%20%20%20%20name%3A%20String%3A%3Afrom(%22Ferris%22)%2C%0A%20%20%20%20%20%20%20%20noise%3A%20String%3A%3Afrom(%22blub%22)%2C%0A%20%20%20%20%7D%3B%0A%20%20%20%20creature.make_alot_of_noise()%3B%0A%7D%0A
+  content_markdown: |
+    Traits 可以從其他 trait 繼承方法。
+- title: 動態調度和靜態調度
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=struct%20SeaCreature%20%7B%0A%20%20%20%20pub%20name%3A%20String%2C%0A%20%20%20%20noise%3A%20String%2C%0A%7D%0A%0Aimpl%20SeaCreature%20%7B%0A%20%20%20%20pub%20fn%20get_sound(%26self)%20-%3E%20%26str%20%7B%0A%20%20%20%20%20%20%20%20%26self.noise%0A%20%20%20%20%7D%0A%7D%0A%0Atrait%20NoiseMaker%20%7B%0A%20%20%20%20fn%20make_noise(%26self)%3B%0A%7D%0A%0Aimpl%20NoiseMaker%20for%20SeaCreature%20%7B%0A%20%20%20%20fn%20make_noise(%26self)%20%7B%0A%20%20%20%20%20%20%20%20println!(%22%7B%7D%22%2C%20%26self.get_sound())%3B%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20static_make_noise(creature%3A%20%26SeaCreature)%20%7B%0A%20%20%20%20%2F%2F%20%E6%88%91%E4%BB%AC%E7%9F%A5%E9%81%93%E7%9C%9F%E5%AE%9E%E7%B1%BB%E5%9E%8B%0A%20%20%20%20creature.make_noise()%3B%0A%7D%0A%0Afn%20dynamic_make_noise(noise_maker%3A%20%26dyn%20NoiseMaker)%20%7B%0A%20%20%20%20%2F%2F%20%E6%88%91%E4%BB%AC%E4%B8%8D%E7%9F%A5%E9%81%93%E7%9C%9F%E5%AE%9E%E7%B1%BB%E5%9E%8B%0A%20%20%20%20noise_maker.make_noise()%3B%0A%7D%0A%0Afn%20main()%20%7B%0A%20%20%20%20let%20creature%20%3D%20SeaCreature%20%7B%0A%20%20%20%20%20%20%20%20name%3A%20String%3A%3Afrom(%22Ferris%22)%2C%0A%20%20%20%20%20%20%20%20noise%3A%20String%3A%3Afrom(%22%E5%92%95%E5%99%9C%22)%2C%0A%20%20%20%20%7D%3B%0A%20%20%20%20static_make_noise(%26creature)%3B%0A%20%20%20%20dynamic_make_noise(%26creature)%3B%0A%7D%0A
+  content_markdown: >
+    方法的執行有兩種方式：
+
+    * 靜態調度——當實例類型已知時，我們直接知道要調用什麼函數。
+
+    * 動態調度——當實例類型未知時，我們必須想方法來調用正確的函數。
+
+
+    Trait 類型 `&dyn MyTrait` 給我們提供了使用動態調度間接處理對象實例的能力。
+
+
+    當使用動態調度時，Rust 會鼓勵你在你的 trait 類型前加上`dyn`，以便其他人知道你在做什麼。
+
+
+    內存細節：
+
+    * 動態調度的速度稍慢，因為要追尋指針以找到真正的函數調用。
+- title: Trait 對象
+  content_markdown: >
+    當我們將一個對象的實例傳遞給類型為 `&dyn MyTrait` 的參數時，我們傳遞的是所謂的 *trait 對象*。
+
+
+    Trait 對象允許我們間接調用一個實例的正確方法。一個 trait 對象對應一個結構。
+    它保存著我們實例的指針，並保有一個指向我們實例方法的函數指針列表。
+
+
+    內存細節：
+
+    * 這個函數列表在 C++ 中被稱為 *vtable*。
+- title: 處理未知大小的數據
+  content_markdown: >
+    當我們想把 Trait 存儲在另一個結構中時，它們亦帶來了一個有趣的挑戰。
+    Trait 混淆了原始結構，因此它也混淆了原來的結構體的大小。在 Rust 中，在結構體中存儲未知大小的值有兩種處理方式。
+
+
+    * `泛型（generics）`——使用參數化類型創建已知類型的結構/函數，因此大小變成已知的。
+
+    * `間接存儲（indirection）`——將實例放在堆上，給我們提供了一個間接的層次，讓我們不必擔心實際類型的大小，只需存儲一個指向它的指針。不過還有其他方法！
+- title: 泛型函數
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=struct%20SeaCreature%20%7B%0A%20%20%20%20pub%20name%3A%20String%2C%0A%20%20%20%20noise%3A%20String%2C%0A%7D%0A%0Aimpl%20SeaCreature%20%7B%0A%20%20%20%20pub%20fn%20get_sound(%26self)%20-%3E%20%26str%20%7B%0A%20%20%20%20%20%20%20%20%26self.noise%0A%20%20%20%20%7D%0A%7D%0A%0Atrait%20NoiseMaker%20%7B%0A%20%20%20%20fn%20make_noise(%26self)%3B%0A%7D%0A%0Aimpl%20NoiseMaker%20for%20SeaCreature%20%7B%0A%20%20%20%20fn%20make_noise(%26self)%20%7B%0A%20%20%20%20%20%20%20%20println!(%22%7B%7D%22%2C%20%26self.get_sound())%3B%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20generic_make_noise%3CT%3E(creature%3A%20%26T)%0Awhere%0A%20%20%20%20T%3A%20NoiseMaker%2C%0A%7B%0A%20%20%20%20%2F%2F%20%E6%88%91%E4%BB%AC%E5%9C%A8%E7%BC%96%E8%AF%91%E6%9C%9F%E5%B0%B1%E5%B7%B2%E7%BB%8F%E7%9F%A5%E9%81%93%E5%85%B6%E7%9C%9F%E5%AE%9E%E7%B1%BB%E5%9E%8B%0A%20%20%20%20creature.make_noise()%3B%0A%7D%0A%0Afn%20main()%20%7B%0A%20%20%20%20let%20creature%20%3D%20SeaCreature%20%7B%0A%20%20%20%20%20%20%20%20name%3A%20String%3A%3Afrom(%22Ferris%22)%2C%0A%20%20%20%20%20%20%20%20noise%3A%20String%3A%3Afrom(%22%E5%92%95%E5%99%9C%22)%2C%0A%20%20%20%20%7D%3B%0A%20%20%20%20generic_make_noise(%26creature)%3B%0A%7D%0A
+  content_markdown: >
+    Rust中的泛型與 Trait 是相輔相成的。
+    當我們描述一個參數化類型 `T` 時，我們可以通過列出參數必須實現的 Trait 來限制哪些類型可以作為參數使用。
+
+
+    在以下例子中，類型 `T` 必須實現 `Foo` 這個 Trait：
+
+    ```rust
+
+    fn my_function<T>(foo: T)
+
+    where
+        T:Foo
+    {
+        ...
+    }
+
+    ```
+
+
+    通過使用泛型，我們在編譯時創建靜態類型的函數，這些函數有已知的類型和大小，允許我們對其執行靜態調度，並存儲為有已知大小的值。
+- title: 泛型函數簡寫
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=struct%20SeaCreature%20%7B%0A%20%20%20%20pub%20name%3A%20String%2C%0A%20%20%20%20noise%3A%20String%2C%0A%7D%0A%0Aimpl%20SeaCreature%20%7B%0A%20%20%20%20pub%20fn%20get_sound(%26self)%20-%3E%20%26str%20%7B%0A%20%20%20%20%20%20%20%20%26self.noise%0A%20%20%20%20%7D%0A%7D%0A%0Atrait%20NoiseMaker%20%7B%0A%20%20%20%20fn%20make_noise(%26self)%3B%0A%7D%0A%0Aimpl%20NoiseMaker%20for%20SeaCreature%20%7B%0A%20%20%20%20fn%20make_noise(%26self)%20%7B%0A%20%20%20%20%20%20%20%20println!(%22%7B%7D%22%2C%20%26self.get_sound())%3B%0A%20%20%20%20%7D%0A%7D%0A%0Afn%20generic_make_noise(creature%3A%20%26impl%20NoiseMaker)%0A%7B%0A%20%20%20%20%2F%2F%20%E6%88%91%E4%BB%AC%E5%9C%A8%E7%BC%96%E8%AF%91%E6%9C%9F%E5%B0%B1%E5%B7%B2%E7%BB%8F%E7%9F%A5%E9%81%93%E5%85%B6%E7%9C%9F%E5%AE%9E%E7%B1%BB%E5%9E%8B%0A%20%20%20%20creature.make_noise()%3B%0A%7D%0A%0Afn%20main()%20%7B%0A%20%20%20%20let%20creature%20%3D%20SeaCreature%20%7B%0A%20%20%20%20%20%20%20%20name%3A%20String%3A%3Afrom(%22Ferris%22)%2C%0A%20%20%20%20%20%20%20%20noise%3A%20String%3A%3Afrom(%22%E5%92%95%E5%99%9C%22)%2C%0A%20%20%20%20%7D%3B%0A%20%20%20%20generic_make_noise(%26creature)%3B%0A%7D%0A
+  content_markdown: |
+    Rust 為由 Trait 限制的泛型函數提供了簡寫形式：
+
+    ```rust
+    fn my_function(foo: impl Foo) {
+        ...
+    }
+    ```
+
+    這段代碼等價於：
+
+    ```rust
+    fn my_function<T>(foo: T)
+    where
+        T:Foo
+    {
+        ...
+    }
+    ```
+- title: Box
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=struct%20SeaCreature%20%7B%0A%20%20%20%20pub%20name%3A%20String%2C%0A%20%20%20%20noise%3A%20String%2C%0A%7D%0A%0Aimpl%20SeaCreature%20%7B%0A%20%20%20%20pub%20fn%20get_sound(%26self)%20-%3E%20%26str%20%7B%0A%20%20%20%20%20%20%20%20%26self.noise%0A%20%20%20%20%7D%0A%7D%0A%0Atrait%20NoiseMaker%20%7B%0A%20%20%20%20fn%20make_noise(%26self)%3B%0A%7D%0A%0Aimpl%20NoiseMaker%20for%20SeaCreature%20%7B%0A%20%20%20%20fn%20make_noise(%26self)%20%7B%0A%20%20%20%20%20%20%20%20println!(%22%7B%7D%22%2C%20%26self.get_sound())%3B%0A%20%20%20%20%7D%0A%7D%0A%0Astruct%20Ocean%20%7B%0A%20%20%20%20animals%3A%20Vec%3CBox%3Cdyn%20NoiseMaker%3E%3E%2C%0A%7D%0A%0Afn%20main()%20%7B%0A%20%20%20%20let%20ferris%20%3D%20SeaCreature%20%7B%0A%20%20%20%20%20%20%20%20name%3A%20String%3A%3Afrom(%22Ferris%22)%2C%0A%20%20%20%20%20%20%20%20noise%3A%20String%3A%3Afrom(%22%E5%92%95%E5%99%9C%22)%2C%0A%20%20%20%20%7D%3B%0A%20%20%20%20let%20sarah%20%3D%20SeaCreature%20%7B%0A%20%20%20%20%20%20%20%20name%3A%20String%3A%3Afrom(%22Sarah%22)%2C%0A%20%20%20%20%20%20%20%20noise%3A%20String%3A%3Afrom(%22%E5%93%A7%E6%BA%9C%22)%2C%0A%20%20%20%20%7D%3B%0A%20%20%20%20let%20ocean%20%3D%20Ocean%20%7B%0A%20%20%20%20%20%20%20%20animals%3A%20vec!%5BBox%3A%3Anew(ferris)%2C%20Box%3A%3Anew(sarah)%5D%2C%0A%20%20%20%20%7D%3B%0A%20%20%20%20for%20a%20in%20ocean.animals.iter()%20%7B%0A%20%20%20%20%20%20%20%20a.make_noise()%3B%0A%20%20%20%20%7D%0A%7D%0A
+  content_markdown: >
+    `Box` 是一個允許我們將數據從棧上移到堆上的數據結構。
+
+
+    `Box` 是一個被稱為*智能指針*的結構，它持有指向我們在堆上的數據的指針。
+
+
+    由於 `Box` 是一個已知大小的結構體（因為它只是持有一個指針），
+    因此它經常被用在一個必須知道其字段大小的結構體中存儲對某個目標的引用。
+
+
+    `Box` 非常常見，它幾乎可以被用在任何地方：
+
+
+    ```rust
+
+    Box::new(Foo { ... })
+
+    ```
+- title: 重溫泛型結構體
+  content_markdown: >
+    泛型結構體也可以通過 Trait 來約束其參數化類型：
+
+
+    ```rust
+
+    struct MyStruct<T>
+
+    where
+        T: MyTrait
+    {
+        foo: T
+        ...
+    }
+
+    ```
+
+
+    泛型結構體在它的實現塊中有其參數化的類型：
+
+
+    ```rust
+
+    impl<T> MyStruct<T> {
+        ...
+    }
+
+    ```
+- title: 第七章 - 總結
+  content_markdown: >
+    現在我們手頭有了更多可以清晰地表達我們的想法的語言功能！ 
+
+    Rust 的抽象可能很簡單，但它們強大到足以讓我們寫代碼寫得很愉快。
+    在本章中，我們通過 `Box` 簡單瞥見了智能指針。在下一章中，我們將瞭解智能指針如何幫助我們處理其他特定的內存情況。
+
+
+    其他資源（英文）：
+
+    * [視頻 - Object-oriented Programming in 7
+    minutes](https://www.youtube.com/watch?v=pTB0EiLXUC8)
+
+    * [文章 - "The faster you unlearn OOP, the better for you and your
+    software"](https://dpc.pw/the-faster-you-unlearn-oop-the-better-for-you-and-your-software)

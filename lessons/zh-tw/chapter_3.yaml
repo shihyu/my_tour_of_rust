@@ -1,0 +1,96 @@
+- title: 第三章 - 基本數據結構類型
+  content_markdown: |
+    現在是我們探索基本類型之外內容的時候了！在本章中，我們將查看 Rust 中最原始的數據結構，
+    並密切關注它們在內存中的表示。我想你們會喜歡上 Rust 很少隱藏事物運作原理這一點的。
+- title: 結構體
+  content_markdown: |
+    一個 `struct` 就是一些字段的集合。
+
+    *字段*是一個與數據結構相關聯的數據值。它的值可以是基本類型或結構體類型。
+
+    它的定義就像給編譯器的藍圖，告訴編譯器如何在內存中佈局彼此相鄰的字段。
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=struct%20SeaCreature%20%7B%0A%20%20%20%20%2F%2F%20String%20%E6%98%AF%E4%B8%AA%E7%BB%93%E6%9E%84%E4%BD%93%0A%20%20%20%20animal_type%3A%20String%2C%0A%20%20%20%20name%3A%20String%2C%0A%20%20%20%20arms%3A%20i32%2C%0A%20%20%20%20legs%3A%20i32%2C%0A%20%20%20%20weapon%3A%20String%2C%0A%7D
+- title: 方法調用
+  content_markdown: |
+    與函數（function）不同，方法（method）是與特定數據類型關聯的函數。
+
+    **靜態方法** — 屬於某個類型，調用時使用 `::` 運算符。
+
+    **實例方法** — 屬於某個類型的實例，調用時使用 `.` 運算符。
+
+    我們將在後續章節中更多地討論如何創建自己的方法。
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=fn%20main()%20%7B%0A%20%20%20%20%2F%2F%20%E4%BD%BF%E7%94%A8%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95%E6%9D%A5%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAString%E5%AE%9E%E4%BE%8B%0A%20%20%20%20let%20s%20%3D%20String%3A%3Afrom(%22Hello%20world!%22)%3B%0A%20%20%20%20%2F%2F%20%E4%BD%BF%E7%94%A8%E5%AE%9E%E4%BE%8B%E6%9D%A5%E8%B0%83%E7%94%A8%E6%96%B9%E6%B3%95%0A%20%20%20%20println!(%22%7B%7D%20is%20%7B%7D%20characters%20long.%22%2C%20s%2C%20s.len())%3B%0A%7D%0A
+- title: 內存
+  content_markdown: |
+    Rust 程序有 3 個存放數據的內存區域：
+    * **數據內存** - 對於固定大小和**靜態**（即在整個程序生命週期中都存在）的數據。
+      考慮一下程序中的文本（例如 “Hello World”），該文本的字節只能讀取，因此它們位於該區域中。
+      編譯器對這類數據做了很多優化，由於位置已知且固定，因此通常認為編譯器使用起來非常快。
+    * **棧內存** - 對於在函數中聲明為變量的數據。
+      在函數調用期間，內存的位置不會改變，因為編譯器可以優化代碼，所以棧數據使用起來比較快。
+    * **堆內存** - 對於在程序運行時創建的數據。
+      此區域中的數據可以添加、移動、刪除、調整大小等。由於它的動態特性，通常認為它使用起來比較慢，
+      但是它允許更多創造性的內存使用。當數據添加到該區域時，我們稱其為**分配**。 從本區域中刪除
+      數據後，我們將其稱為**釋放**。
+- title: 在內存中創建數據
+  content_markdown: |
+    當我們在代碼中**實例化**一個**結構體**時，我們的程序會在內存中並排創建關聯的字段數據。
+
+    當我們通過制定所有字段值的方式來實例化時：
+
+    `結構體名 { ... }`.
+
+    結構體字段可以通過 `.` 運算符來獲取。
+
+    我們例子的內存詳情：
+    * 引號內的文本是隻讀數據（例如“ferris”），因此它位於*數據內存區*。
+    * 函數調用 `String::from` 創建一個結構體 `String`，該結構體與 SeaCreature 的字段並排放置在*棧*中。
+      字符串容器通過如下步驟表示可更改的文本：
+        1. 在*堆*上創建可修改文本的內存。
+        2. 將*堆*中存儲對象的內存位置的引用存儲在 `String` 結構體中（在以後的課程中會詳細介紹）。
+    * 最後，我們的兩個朋友 *Ferris* 和 *Sarah* 有在程序中總是固定的位置的數據結構，所以它們被放在*棧*上。
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=struct%20SeaCreature%20%7B%0A%20%20%20%20animal_type%3A%20String%2C%0A%20%20%20%20name%3A%20String%2C%0A%20%20%20%20arms%3A%20i32%2C%0A%20%20%20%20legs%3A%20i32%2C%0A%20%20%20%20weapon%3A%20String%2C%0A%7D%0A%0Afn%20main()%20%7B%0A%20%20%20%20%2F%2F%20SeaCreature%E7%9A%84%E6%95%B0%E6%8D%AE%E5%9C%A8%E6%A0%88%E4%B8%8A%0A%20%20%20%20let%20ferris%20%3D%20SeaCreature%20%7B%0A%20%20%20%20%20%20%20%20%2F%2F%20String%20%E7%BB%93%E6%9E%84%E4%BD%93%E4%B9%9F%E5%9C%A8%E6%A0%88%E4%B8%8A%EF%BC%8C%0A%20%20%20%20%20%20%20%20%2F%2F%20%E4%BD%86%E4%B9%9F%E5%AD%98%E6%94%BE%E4%BA%86%E4%B8%80%E4%B8%AA%E6%95%B0%E6%8D%AE%E5%9C%A8%E5%A0%86%E4%B8%8A%E7%9A%84%E5%BC%95%E7%94%A8%0A%20%20%20%20%20%20%20%20animal_type%3A%20String%3A%3Afrom(%22%E8%9E%83%E8%9F%B9%22)%2C%0A%20%20%20%20%20%20%20%20name%3A%20String%3A%3Afrom(%22Ferris%22)%2C%0A%20%20%20%20%20%20%20%20arms%3A%202%2C%0A%20%20%20%20%20%20%20%20legs%3A%204%2C%0A%20%20%20%20%20%20%20%20weapon%3A%20String%3A%3Afrom(%22%E5%A4%A7%E9%92%B3%E5%AD%90%22)%2C%0A%20%20%20%20%7D%3B%0A%0A%20%20%20%20let%20sarah%20%3D%20SeaCreature%20%7B%0A%20%20%20%20%20%20%20%20animal_type%3A%20String%3A%3Afrom(%22%E7%AB%A0%E9%B1%BC%22)%2C%0A%20%20%20%20%20%20%20%20name%3A%20String%3A%3Afrom(%22Sarah%22)%2C%0A%20%20%20%20%20%20%20%20arms%3A%208%2C%0A%20%20%20%20%20%20%20%20legs%3A%200%2C%0A%20%20%20%20%20%20%20%20weapon%3A%20String%3A%3Afrom(%22%E6%97%A0%22)%2C%0A%20%20%20%20%7D%3B%0A%20%20%20%20%0A%20%20%20%20println!(%0A%20%20%20%20%20%20%20%20%22%7B%7D%20%E6%98%AF%E5%8F%AA%7B%7D%E3%80%82%E5%AE%83%E6%9C%89%20%7B%7D%20%E5%8F%AA%E8%83%B3%E8%86%8A%20%7B%7D%20%E6%9D%A1%E8%85%BF%EF%BC%8C%E8%BF%98%E6%9C%89%E4%B8%80%E4%B8%AA%7B%7D%E3%80%82%22%2C%0A%20%20%20%20%20%20%20%20ferris.name%2C%20ferris.animal_type%2C%20ferris.arms%2C%20ferris.legs%2C%20ferris.weapon%0A%20%20%20%20)%3B%0A%20%20%20%20println!(%0A%20%20%20%20%20%20%20%20%22%7B%7D%20%E6%98%AF%E5%8F%AA%7B%7D%E3%80%82%E5%AE%83%E6%9C%89%20%7B%7D%20%E5%8F%AA%E8%83%B3%E8%86%8A%20%7B%7D%20%E6%9D%A1%E8%85%BF%E3%80%82%E5%AE%83%E6%B2%A1%E6%9C%89%E6%9D%80%E4%BC%A4%E6%80%A7%E6%AD%A6%E5%99%A8%E2%80%A6%22%2C%0A%20%20%20%20%20%20%20%20sarah.name%2C%20sarah.animal_type%2C%20sarah.arms%2C%20sarah.legs%0A%20%20%20%20)%3B%0A%7D%0A
+- title: 類元組結構體
+  content_markdown: |
+    簡潔起見，你可以創建像元組一樣被使用的結構體。
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=struct%20Location(i32%2C%20i32)%3B%0A%0Afn%20main()%20%7B%0A%20%20%20%20%2F%2F%20%E8%BF%99%E4%BB%8D%E7%84%B6%E6%98%AF%E4%B8%80%E4%B8%AA%E5%9C%A8%E6%A0%88%E4%B8%8A%E7%9A%84%E7%BB%93%E6%9E%84%E4%BD%93%0A%20%20%20%20let%20loc%20%3D%20Location(42%2C%2032)%3B%0A%20%20%20%20println!(%22%7B%7D%2C%20%7B%7D%22%2C%20loc.0%2C%20loc.1)%3B%0A%7D%0A
+- title: 類單元結構體
+  content_markdown: |
+    結構體也可以沒有任何字段。
+
+    就像第一章提到的，一個 *unit* 是空元組 `()` 的別稱。這就是為什麼，此類結構體被稱為 `類單元`。
+
+    這種類型的結構體很少用到。
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=struct%20Marker%3B%0A%0Afn%20main()%20%7B%0A%20%20%20%20let%20_m%20%3D%20Marker%3B%0A%7D%0A
+- title: 枚舉
+  content_markdown: |
+    枚舉允許你使用 `enum` 關鍵字創建一個新類型，該類型的值可以包含幾個帶標記的元素。
+
+    `match` 有助於確保對所有可能的枚舉值進行徹底的處理，使其成為確保高質量代碼的強大工具。
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=%23!%5Ballow(dead_code)%5D%20%2F%2F%20this%20line%20prevents%20compiler%20warnings%0A%0Aenum%20Species%20%7B%0A%20%20%20%20Crab%2C%0A%20%20%20%20Octopus%2C%0A%20%20%20%20Fish%2C%0A%20%20%20%20Clam%0A%7D%0A%0Astruct%20SeaCreature%20%7B%0A%20%20%20%20species%3A%20Species%2C%0A%20%20%20%20name%3A%20String%2C%0A%20%20%20%20arms%3A%20i32%2C%0A%20%20%20%20legs%3A%20i32%2C%0A%20%20%20%20weapon%3A%20String%2C%0A%7D%0A%0Afn%20main()%20%7B%0A%20%20%20%20let%20ferris%20%3D%20SeaCreature%20%7B%0A%20%20%20%20%20%20%20%20species%3A%20Species%3A%3ACrab%2C%0A%20%20%20%20%20%20%20%20name%3A%20String%3A%3Afrom(%22Ferris%22)%2C%0A%20%20%20%20%20%20%20%20arms%3A%202%2C%0A%20%20%20%20%20%20%20%20legs%3A%204%2C%0A%20%20%20%20%20%20%20%20weapon%3A%20String%3A%3Afrom(%22claw%22)%2C%0A%20%20%20%20%7D%3B%0A%0A%20%20%20%20match%20ferris.species%20%7B%0A%20%20%20%20%20%20%20%20Species%3A%3ACrab%20%3D%3E%20println!(%22%7B%7D%20is%20a%20crab%22%2Cferris.name)%2C%0A%20%20%20%20%20%20%20%20Species%3A%3AOctopus%20%3D%3E%20println!(%22%7B%7D%20is%20a%20octopus%22%2Cferris.name)%2C%0A%20%20%20%20%20%20%20%20Species%3A%3AFish%20%3D%3E%20println!(%22%7B%7D%20is%20a%20fish%22%2Cferris.name)%2C%0A%20%20%20%20%20%20%20%20Species%3A%3AClam%20%3D%3E%20println!(%22%7B%7D%20is%20a%20clam%22%2Cferris.name)%2C%0A%20%20%20%20%7D%0A%7D%0A
+- title: 帶數據的枚舉
+  content_markdown: |
+    `enum` 的元素可以有一個或多個數據類型，從而使其表現得像 C 語言中的*聯合*。
+
+    當使用 `match` 對一個 `enum` 進行模式匹配時，可以將變量名稱綁定到每個數據值。
+
+    `enum` 的內存細節：
+    * 枚舉數據的內存大小等於它最大元素的大小。此舉是為了讓所有可能的值都能存入相同的內存空間。
+    * 除了元素數據類型（如果有）之外，每個元素還有一個數字值，用於表示它是哪個標籤。
+
+    其他細節：
+    * Rust 的 `enum` 也被稱為*標籤聯合* （tagged-union）
+    * 把類型組合成一種新的類型，這就是人們所說的 Rust 具有 *代數類型* 的含義。
+  code: >-
+    https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&code=%23!%5Ballow(dead_code)%5D%20%2F%2F%20this%20line%20prevents%20compiler%20warnings%0A%0Aenum%20Species%20%7B%20Crab%2C%20Octopus%2C%20Fish%2C%20Clam%20%7D%0Aenum%20PoisonType%20%7B%20Acidic%2C%20Painful%2C%20Lethal%20%7D%0Aenum%20Size%20%7B%20Big%2C%20Small%20%7D%0Aenum%20Weapon%20%7B%0A%20%20%20%20Claw(i32%2C%20Size)%2C%0A%20%20%20%20Poison(PoisonType)%2C%0A%20%20%20%20None%0A%7D%0A%0Astruct%20SeaCreature%20%7B%0A%20%20%20%20species%3A%20Species%2C%0A%20%20%20%20name%3A%20String%2C%0A%20%20%20%20arms%3A%20i32%2C%0A%20%20%20%20legs%3A%20i32%2C%0A%20%20%20%20weapon%3A%20Weapon%2C%0A%7D%0A%0Afn%20main()%20%7B%0A%20%20%20%20%2F%2F%20SeaCreature's%20data%20is%20on%20stack%0A%20%20%20%20let%20ferris%20%3D%20SeaCreature%20%7B%0A%20%20%20%20%20%20%20%20%2F%2F%20String%20struct%20is%20also%20on%20stack%2C%0A%20%20%20%20%20%20%20%20%2F%2F%20but%20holds%20a%20reference%20to%20data%20on%20heap%0A%20%20%20%20%20%20%20%20species%3A%20Species%3A%3ACrab%2C%0A%20%20%20%20%20%20%20%20name%3A%20String%3A%3Afrom(%22Ferris%22)%2C%0A%20%20%20%20%20%20%20%20arms%3A%202%2C%0A%20%20%20%20%20%20%20%20legs%3A%204%2C%0A%20%20%20%20%20%20%20%20weapon%3A%20Weapon%3A%3AClaw(2%2C%20Size%3A%3ASmall)%2C%0A%20%20%20%20%7D%3B%0A%0A%20%20%20%20match%20ferris.species%20%7B%0A%20%20%20%20%20%20%20%20Species%3A%3ACrab%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20match%20ferris.weapon%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Weapon%3A%3AClaw(num_claws%2Csize)%20%3D%3E%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20size_description%20%3D%20match%20size%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Size%3A%3ABig%20%3D%3E%20%22big%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20Size%3A%3ASmall%20%3D%3E%20%22small%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20println!(%22ferris%20is%20a%20crab%20with%20%7B%7D%20%7B%7D%20claws%22%2C%20num_claws%2C%20size_description)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20_%20%3D%3E%20println!(%22ferris%20is%20a%20crab%20with%20some%20other%20weapon%22)%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20_%20%3D%3E%20println!(%22ferris%20is%20some%20other%20animal%22)%2C%0A%20%20%20%20%7D%0A%7D
+- title: 第三章 - 總結
+  content_markdown: |
+    太好了！現在我們有了一些用代碼來展示我們想法最基本的工具。
+    希望現在我們能看到 Rust 的基本操作是如何與它的類型和諧一致地工作的。
+    接下來我們將討論一個概念，它為我們的數據類型提供了更大的靈活性：*泛型*。
